@@ -1,15 +1,15 @@
 const express = require('express')
 const Task = require('../models/task')
 const auth = require('../middleware/auth')
-const User = require('../models/user')
-const { update } = require('../models/task')
+
 const router = new express.Router()
 
 
 router.post('/tasks', auth, async (req, res) => {
     // const task = new Task(req.body)
+    console.log(req.body.data)
     const task = new Task({
-        ...req.body,
+        ...req.body.data,
         owner: req.user._id
     })
     try {
@@ -25,11 +25,11 @@ router.get('/tasks', auth, async (req, res) => {
     const match = {}
     const sort = {}
 
-    if(req.query.completed){
+    if (req.query.completed) {
         match.completed = req.query.completed === 'true'
     }
 
-    if(req.query.sortBy){
+    if (req.query.sortBy) {
         const parts = req.query.sortBy.split(':')
         sort[parts[0]] = parts[1] === 'desc' ? -1 : 1
     }
@@ -44,11 +44,9 @@ router.get('/tasks', auth, async (req, res) => {
                 sort
             }
         }).execPopulate()
-        res.status(201).send(req.user.tasks)
-        // const tasks = await Task.find({})
-        // res.status(201).send(tasks)
-    } catch (error) {
-        res.status(500).send(error)
+        res.send(req.user.tasks)
+    } catch (e) {
+        res.status(500).send()
     }
 })
 
